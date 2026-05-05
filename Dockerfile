@@ -1,9 +1,9 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
-# Build tools needed for native modules (better-sqlite3 via drizzle-kit, sharp via next)
-RUN apk add --no-cache python3 make g++ libc6-compat
 COPY package.json package-lock.json* ./
-RUN npm ci
+# --omit=optional skips better-sqlite3 (drizzle-kit optional dep) and sharp,
+# so no C++ compilation is needed on Alpine — keeps build fast and low-memory.
+RUN npm ci --omit=optional
 
 FROM node:22-alpine AS builder
 WORKDIR /app
