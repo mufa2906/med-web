@@ -1,33 +1,28 @@
 import { relations } from "drizzle-orm";
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, boolean, timestamp, index } from "drizzle-orm/pg-core";
 
-const timestampMs = (name: string) =>
-  integer(name, { mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date());
-
-const bool = (name: string, def = false) =>
-  integer(name, { mode: "boolean" }).notNull().default(def);
+const ts = (name: string) =>
+  timestamp(name).notNull().$defaultFn(() => new Date());
 
 // —— Better Auth (core) ——
-export const user = sqliteTable("user", {
+export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: bool("emailVerified", false),
+  emailVerified: boolean("emailVerified").notNull().default(false),
   image: text("image"),
-  createdAt: timestampMs("createdAt"),
-  updatedAt: timestampMs("updatedAt"),
+  createdAt: ts("createdAt"),
+  updatedAt: ts("updatedAt"),
 });
 
-export const session = sqliteTable(
+export const session = pgTable(
   "session",
   {
     id: text("id").primaryKey(),
-    expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
+    expiresAt: timestamp("expiresAt").notNull(),
     token: text("token").notNull().unique(),
-    createdAt: timestampMs("createdAt"),
-    updatedAt: timestampMs("updatedAt"),
+    createdAt: ts("createdAt"),
+    updatedAt: ts("updatedAt"),
     ipAddress: text("ipAddress"),
     userAgent: text("userAgent"),
     userId: text("userId")
@@ -37,7 +32,7 @@ export const session = sqliteTable(
   (t) => [index("session_userId_idx").on(t.userId)],
 );
 
-export const account = sqliteTable(
+export const account = pgTable(
   "account",
   {
     id: text("id").primaryKey(),
@@ -49,27 +44,23 @@ export const account = sqliteTable(
     accessToken: text("accessToken"),
     refreshToken: text("refreshToken"),
     idToken: text("idToken"),
-    accessTokenExpiresAt: integer("accessTokenExpiresAt", {
-      mode: "timestamp_ms",
-    }),
-    refreshTokenExpiresAt: integer("refreshTokenExpiresAt", {
-      mode: "timestamp_ms",
-    }),
+    accessTokenExpiresAt: timestamp("accessTokenExpiresAt"),
+    refreshTokenExpiresAt: timestamp("refreshTokenExpiresAt"),
     scope: text("scope"),
     password: text("password"),
-    createdAt: timestampMs("createdAt"),
-    updatedAt: timestampMs("updatedAt"),
+    createdAt: ts("createdAt"),
+    updatedAt: ts("updatedAt"),
   },
   (t) => [index("account_userId_idx").on(t.userId)],
 );
 
-export const verification = sqliteTable("verification", {
+export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
-  expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
-  createdAt: timestampMs("createdAt"),
-  updatedAt: timestampMs("updatedAt"),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: ts("createdAt"),
+  updatedAt: ts("updatedAt"),
 });
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -86,7 +77,7 @@ export const accountRelations = relations(account, ({ one }) => ({
 }));
 
 // —— CMS / public content ——
-export const products = sqliteTable("products", {
+export const products = pgTable("products", {
   id: text("id").primaryKey(),
   nameId: text("name_id").notNull(),
   nameEn: text("name_en").notNull(),
@@ -94,28 +85,28 @@ export const products = sqliteTable("products", {
   descriptionEn: text("description_en").notNull(),
   imageUrl: text("image_url").notNull(),
   category: text("category").notNull().default("general"),
-  createdAt: timestampMs("created_at"),
-  updatedAt: timestampMs("updated_at"),
+  createdAt: ts("created_at"),
+  updatedAt: ts("updated_at"),
 });
 
-export const testimonials = sqliteTable("testimonials", {
+export const testimonials = pgTable("testimonials", {
   id: text("id").primaryKey(),
   clientName: text("client_name").notNull(),
   clientRole: text("client_role").notNull().default(""),
   messageId: text("message_id").notNull(),
   messageEn: text("message_en").notNull(),
-  createdAt: timestampMs("created_at"),
+  createdAt: ts("created_at"),
 });
 
-export const gallery = sqliteTable("gallery", {
+export const gallery = pgTable("gallery", {
   id: text("id").primaryKey(),
   titleId: text("title_id").notNull(),
   titleEn: text("title_en").notNull(),
   imageUrl: text("image_url").notNull(),
-  createdAt: timestampMs("created_at"),
+  createdAt: ts("created_at"),
 });
 
-export const blogs = sqliteTable(
+export const blogs = pgTable(
   "blogs",
   {
     id: text("id").primaryKey(),
@@ -125,14 +116,14 @@ export const blogs = sqliteTable(
     contentId: text("content_id").notNull(),
     contentEn: text("content_en").notNull(),
     thumbnailUrl: text("thumbnail_url"),
-    publishedAt: integer("published_at", { mode: "timestamp_ms" }),
-    createdAt: timestampMs("created_at"),
-    updatedAt: timestampMs("updated_at"),
+    publishedAt: timestamp("published_at"),
+    createdAt: ts("created_at"),
+    updatedAt: ts("updated_at"),
   },
   (t) => [index("blogs_slug_idx").on(t.slug)],
 );
 
-export const teams = sqliteTable("teams", {
+export const teams = pgTable("teams", {
   id: text("id").primaryKey(),
   nameId: text("name_id").notNull(),
   nameEn: text("name_en").notNull(),
@@ -140,17 +131,17 @@ export const teams = sqliteTable("teams", {
   positionEn: text("position_en").notNull(),
   photoUrl: text("photo_url").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
-  createdAt: timestampMs("created_at"),
+  createdAt: ts("created_at"),
 });
 
-export const messages = sqliteTable(
+export const messages = pgTable(
   "messages",
   {
     id: text("id").primaryKey(),
     senderName: text("sender_name").notNull(),
     senderEmail: text("sender_email").notNull(),
     messageContent: text("message_content").notNull(),
-    createdAt: timestampMs("created_at"),
+    createdAt: ts("created_at"),
   },
   (t) => [index("messages_created_idx").on(t.createdAt)],
 );

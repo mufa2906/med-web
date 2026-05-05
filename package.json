@@ -16,7 +16,7 @@
     "@base-ui/react": "^1.4.1",
     "@hookform/resolvers": "^5.2.2",
     "better-auth": "^1.6.9",
-    "better-sqlite3": "^12.9.0",
+    "postgres": "^3.4.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
@@ -35,7 +35,6 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
