@@ -1,5 +1,7 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
+# Build tools needed for native modules (better-sqlite3 via drizzle-kit, sharp via next)
+RUN apk add --no-cache python3 make g++ libc6-compat
 COPY package.json package-lock.json* ./
 RUN npm ci
 
