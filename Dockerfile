@@ -10,7 +10,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # Cap Node heap at 1024 MB so the build GC's instead of OOM-killing the container
-RUN NODE_OPTIONS="--max-old-space-size=1024" npm run build
+RUN NODE_OPTIONS="--max-old-space-size=512" npm run build
 
 FROM node:22-alpine AS runner
 WORKDIR /app
